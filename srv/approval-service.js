@@ -4,18 +4,18 @@ module.exports = class ApprovalService extends cds.ApplicationService {
   init() {
     const { PurchaseRequests } = cds.entities('pr')
 
-    // TODO Stage 4.3: approve and reject actions
-    //   - req.data has { request, comment }
-    //   - reject with 404 'REQUEST_NOT_FOUND' if the request does not exist
-    //   - reject with 409 'ONLY_SUBMITTED_CAN_BE_DECIDED' unless status is 'Submitted'
-    //   - on approve, reject with 403 'NO_SELF_APPROVAL' if createdBy === req.user.id
-    //   - update status ('Approved' / 'Rejected') and comment
-    //   - bonus: after approving, this.emit('RequestApproved', { ID, approver: req.user.id })
-    this.on('approve', async req => {
-    })
+    const decide = status => async req => {
+      const { request: ID, comment } = req.data
+      const request = await SELECT.one.from(PurchaseRequests, ID).columns('status', 'createdBy')
+      if (!request) return req.reject(404, 'REQUEST_NOT_FOUND', [ID])
+      if (request.status !== 'Submitted') return req.reject(409, 'ONLY_SUBMITTED_CAN_BE_DECIDED')
+      if (status === 'Approved' && request.createdBy === req.user.id) return req.reject(403, 'NO_SELF_APPROVAL')
+      await UPDATE(PurchaseRequests, ID).with({ status, comment })
+      if (status === 'Approved') await this.emit('RequestApproved', { ID, approver: req.user.id })
+    }
 
-    this.on('reject', async req => {
-    })
+    this.on('approve', decide('Approved'))
+    this.on('reject', decide('Rejected'))
 
     return super.init()
   }

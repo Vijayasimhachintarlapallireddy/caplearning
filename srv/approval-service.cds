@@ -1,7 +1,7 @@
 using { pr } from '../db/schema';
 
-// TODO Stage 5: only users with the role 'Approver' may use this service (@requires)
 @path: 'approval'
+@requires: 'Approver'
 service ApprovalService {
   @readonly entity OpenRequests as projection on pr.PurchaseRequests
     where status = 'Submitted';

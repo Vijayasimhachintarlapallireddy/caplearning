@@ -8,6 +8,7 @@ service RequestService {
   @readonly entity Suppliers as projection on pr.Suppliers;
 }
 
-// TODO Stage 5: restrict PurchaseRequests with @restrict:
-//   - Requester may READ and CREATE
-//   - Requester may UPDATE, DELETE and submit only their own requests (createdBy = $user)
+annotate RequestService.PurchaseRequests with @(restrict: [
+  { grant: ['READ', 'CREATE'], to: 'Requester' },
+  { grant: ['UPDATE', 'DELETE', 'submit'], to: 'Requester', where: 'createdBy = $user' }
+]);
