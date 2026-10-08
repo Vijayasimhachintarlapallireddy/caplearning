@@ -1,0 +1,33 @@
+{
+  "name": "cap-learning-pr-app",
+  "version": "1.0.0",
+  "description": "Hands-on SAP CAP Node.js learning project: a small purchase-request app",
+  "type": "commonjs",
+  "private": true,
+  "dependencies": {
+    "@sap/cds": "^10"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": "^1",
+    "@cap-js/sqlite": "^3",
+    "jest": "^30"
+  },
+  "scripts": {
+    "start": "cds-serve",
+    "watch": "cds watch",
+    "test": "jest test/baseline",
+    "test:exercises": "jest test/exercises"
+  },
+  "cds": {
+    "requires": {
+      "auth": {
+        "kind": "mocked",
+        "users": {
+          "alice": { "roles": ["Requester"] },
+          "bob": { "roles": ["Approver"] },
+          "carol": { "roles": ["Requester", "Approver"] }
+        }
+      }
+    }
+  }
+}

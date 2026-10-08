@@ -1,0 +1,42 @@
+### Stage 3: try these with the VS Code REST Client while `cds watch` runs
+@host = http://localhost:4004
+@alice = Basic alice:
+@bob = Basic bob:
+
+### Read requests with items and supplier
+GET {{host}}/odata/v4/request/PurchaseRequests?$expand=items,supplier
+Authorization: {{alice}}
+
+### Filter by total
+GET {{host}}/odata/v4/request/PurchaseRequests?$filter=total gt 1000
+Authorization: {{alice}}
+
+### Deep insert: header with items
+POST {{host}}/odata/v4/request/PurchaseRequests
+Authorization: {{alice}}
+Content-Type: application/json
+
+{
+  "title": "Docking stations",
+  "supplier_ID": "a1b2c3d4-0001-4000-8000-000000000002",
+  "currency_code": "EUR",
+  "items": [ { "product": "USB-C dock", "quantity": 5, "price": 180 } ]
+}
+
+### Submit a request (bound action)
+POST {{host}}/odata/v4/request/PurchaseRequests(b1b2c3d4-0002-4000-8000-000000000001)/submit
+Authorization: {{alice}}
+Content-Type: application/json
+
+{}
+
+### Open requests for approvers
+GET {{host}}/odata/v4/approval/OpenRequests
+Authorization: {{bob}}
+
+### Approve (unbound action)
+POST {{host}}/odata/v4/approval/approve
+Authorization: {{bob}}
+Content-Type: application/json
+
+{ "request": "b1b2c3d4-0002-4000-8000-000000000002", "comment": "Looks good" }
